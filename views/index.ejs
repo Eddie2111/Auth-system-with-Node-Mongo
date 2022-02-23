@@ -1,3 +1,32 @@
+<style>
+    .navbar-default {
+        background-color: #000000;
+        width:100vw;
+        margin-top:-10px;
+        margin-left:-5px;
+        height:10vh;
+        color:white;
+        border-color: #e7e7e7;
+    }
+    .mode-shifter-button {
+        background-color: #0c6bfa;
+        color   :white;
+        height  : 70px;
+        width   : 70px;
+        float   :right;
+    }
+</style>
+<center>
+    <div class="navbar-default">
+        <p>
+        <%= title %>
+        </p>
+        <button class="mode-shifter-button">Shift!</button>
+
+    </div>
+<title><%= title%></title>
 <h1>hi <%= name%>  </h1>
 <a href="/login"><button>Login?</button> </a>
 <a href="/register"><button href="/register">Register?</button></a>
+<p><%= sum%></p>
+</center>
