@@ -1,21 +1,29 @@
+<title><%= title%></title>
+
 <style> 
+  .all{
+    background-image: linear-gradient(rgb(90, 90, 90), rgb(0, 0, 0));
+    height: 100vh;
+  }
     #leftbox {
         float:left; 
         width:50%;
         height:100px;
+        color:white;
     }
 
     #rightbox{
         float:right;
         width:50%;
         height:100px;
+        color:white;
     }
     h1{
         color:green;
         text-align:center;
     }
 </style> 
-
+<div class="all">
 <center>  
 <form action="/register" method="POST">
     <div class="container">
@@ -46,3 +54,4 @@
     <p><a href="/">Return Home</a>.</p>
   </form> 
 </center>
+</div>
