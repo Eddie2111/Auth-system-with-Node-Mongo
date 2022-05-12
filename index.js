@@ -10,9 +10,18 @@ const url           = 'mongodb://localhost:27017/prac';
 const flash         = require('express-flash');
 const axios         = require('axios');
 const fetch         = require("fs");
+
+
+
+
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
-
+app.session({
+    secret: "secretKey of Keyboard Cat",
+    maxAge: 360000,
+    saveUninitialized: false,
+    resave:false
+});
 
 /** custom api testing **/
 var options = {
@@ -69,7 +78,12 @@ app.post('/register',(req,res)=>{
         console.log(users); //send this to database
         
     });
-    
+app.get('/login',(req,res)=>{
+    if (!req.session.stats){
+        res.send("need to login!")
+    }
+    else{ res.send("How the hell did you get in?"); }
+});
 app.post('/login',(req,res)=>{
     res.send('You are logged in');
 });
