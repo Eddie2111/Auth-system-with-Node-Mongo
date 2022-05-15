@@ -1,115 +1,82 @@
-const express       = require('express');
-const app           = express();
-const bodyParser    = require('body-parser');
-const mongoose      = require('mongoose');
-const bcrypt        = require('bcrypt');
-const session       = require('express-session');
-const users         = [];
-const passport      = require('passport');
-const url           = 'mongodb://localhost:27017/prac';
-const flash         = require('express-flash');
-const axios         = require('axios');
-const fetch         = require("fs");
+const express = require('express');
+const app = express();
+const mongoose = require('mongoose');
+const User = require('./model/user');
+
+const environment = require('./environment');
+var cookieParser = require('cookie-parser');
+app.set('view engine','ejs')
+app.use(environment);
 
 
-
-
-app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: false }));
-app.session({
-    secret: "secretKey of Keyboard Cat",
-    maxAge: 360000,
-    saveUninitialized: false,
-    resave:false
-});
-
-/** custom api testing **/
-var options = {
-    method: 'GET',
-    url: 'https://community-open-weather-map.p.rapidapi.com/climate/month',
-    params: {q: 'Dhaka'},
-    headers: {
-      'x-rapidapi-host': 'community-open-weather-map.p.rapidapi.com',
-      'x-rapidapi-key': 'de4521d967msh4f0f50f65ecdfb0p1282b4jsne253f8022f73'
-    }
-  };
-  
-  axios.request(options).then(function (response) {
-      console.log(response.data);
-  }).catch(function (error) {
-      console.error(error);
+app.get('/',(req,res)=>{
+      res.render('pages/index'); 
   });
-/** custom api testing **/
-
-/*** Session storing systems ***/
-
-//app.use(session({
-//    secret: process.env.SESSION_SECRET,
-//    resave: false,
-//    saveUninitialized: false
-//  }))
-
-/*** practicing with mapping variables */
-let constant = 2;
-/*** practicing with mapping variables */
-
-
-/*** Connecting to MongoDB ***/
-mongoose.connect("mongodb://localhost/auth_demo");
-console.log('Success on connecting mongo');
-/*** Connecting to MongoDB ***/
-
-
-
-/*** Recieveing post requests ***/
-app.post('/register',(req,res)=>{
-        try{
-            const hashedPassword = bcrypt.hash(req.body.password,10);
-            users.push({
-                id: Date.now().toString(),
-                name: req.body.name,
-                email: req.body.email,
-                password: hashedPassword,
-            });
-            res.redirect('/login');
-        } catch{
-            res.redirect('/register');
-        }
-        console.log(users); //send this to database
-        
-    });
+ 
 app.get('/login',(req,res)=>{
-    if (!req.session.stats){
-        res.send("need to login!")
-    }
-    else{ res.send("How the hell did you get in?"); }
+    res.render('pages/login');
 });
 app.post('/login',(req,res)=>{
-    res.send('You are logged in');
-});
-/*** Recieveing post requests ***/
-
-
-/***  Rendering of pages ***/
-app.get('/',(req,res)=>{
-    res.render('index.ejs',{title:'Welcome!',name:'Edward', sum:{constant}});
-});
-app.get('/dashboard',(req,res)=>{
-    res.render('dashboard.ejs',{title:'Dashboard',name:'Edward'});
-});
+    const email = req.body.email;
+    const password = req.body.password;
+    var MongoClient = Mongo.connect(url, function (err, db) {
+        if(err) throw err;
+        var dbo = db.db("eventizer");
+        dbo.collection("event_vendors").findOne({email:email},function(err,result){
+          if (err) throw err;
     
-app.get('/login',(req,res)=>{
-    res.render('login.ejs',{title:'Login'});
+          if (result){ //on success -> email
+            console.log(result.password);
+            const syst = bcrypt.compare(password,result.password,(err,data)=>{
+                if (data === true){
+                    // in here
+                    req.session.user = true;
+                    res.render('pages/welcome');
+                }
+                else{
+                    res.render('pages/index');
+                }
+            });
+          }
+    
+          if (!result){
+            const result = {};
+            console.log("No data found");   
+          }
+        });
+    
+      });
+    
 });
-app.get('/register',(req,res)=>{
-    res.render('register.ejs',{title:'Register'});
+ app.get('/logout',(req,res)=>{
+    req.session.destroy();
+    res.render('pages/login');
 });
-/***  Rendering of pages ***/
+
+  app.get('/profile',(req,res)=>{
+      if (req.session.user){
+        res.render('pages/form');
+    }
+    else{
+    res.render('pages/login');
+    }
+});
 
 
-const port = 3000;
-/*** App listening ***/
+const port =  process.env.PORT;
 app.listen(port,()=>{
-    console.log("Server at→ "+port);
-});
-/*** App listening ***/
+    console.log("Server started at "+ port);   
+})
+
+
+
+
+
+
+
+
+
+
+var Mongo = require('mongodb').MongoClient;
+const bcrypt = require('bcrypt');
+const url = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.DBCLUSTER}`;
