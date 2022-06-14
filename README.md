@@ -1,6 +1,8 @@
 # Auth-system-with-Node-Mongo
 
-### Done and DUSTED!
+### Done and DUSTED! [actually, no!]
+
+- it requires optimization, express routes and custom security tokens.
 
 Dotenv includes these,
 - PORT 
